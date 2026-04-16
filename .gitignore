@@ -1,0 +1,19 @@
+# Env
+.env
+
+# Rust
+backend/target/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+tmp/
+.claude

@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface-50 text-surface-800 font-sans;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-400;
+  }
+}
+
+@layer components {
+  /* Tooltip */
+  .tooltip-trigger {
+    @apply relative;
+  }
+  .tooltip-trigger .tooltip-content {
+    @apply invisible opacity-0 absolute z-50 px-2.5 py-1.5 text-xs font-medium
+           bg-surface-900 text-white rounded-lg shadow-lg
+           transition-all duration-150 whitespace-nowrap pointer-events-none;
+  }
+  .tooltip-trigger:hover .tooltip-content {
+    @apply visible opacity-100;
+  }
+}

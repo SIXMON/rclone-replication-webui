@@ -1,0 +1,51 @@
+[package]
+name = "rclone-replication-ui"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "rclone-replication-ui"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+axum = { version = "0.7", features = ["macros"] }
+# Tokio async runtime
+tokio = { version = "1", features = ["full"] }
+# Tower middleware
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Database ORM
+sea-orm = { version = "1", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros", "with-uuid", "with-chrono", "with-json"] }
+sea-orm-migration = { version = "1", features = ["sqlx-postgres", "runtime-tokio-rustls"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# UUID
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Cron scheduler
+tokio-cron-scheduler = "0.10"
+
+# Environment / config
+dotenvy = "0.15"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Logging / tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Concurrent hashmap for SSE broadcaster
+dashmap = "5"
+
+# Async stream utilities
+tokio-stream = { version = "0.1", features = ["sync"] }
+futures = "0.3"

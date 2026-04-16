@@ -57,7 +57,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="px-5 py-4 border-t border-white/10">
         <p className="text-[10px] text-surface-600">
-          Propulsé par <span className="text-surface-400">rclone</span>
+          Produit par <a href="https://sixmon.net" target="_blank" rel="noopener noreferrer" className="text-surface-400 hover:text-brand-400 transition-colors">Sixmon</a> & <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="text-surface-400 hover:text-brand-400 transition-colors">Claude</a>
         </p>
       </div>
     </aside>

@@ -1,7 +1,7 @@
 services:
   backend:
+    image: ghcr.io/sixmon/rclone-replication-webui-backend:latest
     build:
-      image: ghcr.io/sixmon/rclone-replication-webui-backend:latest
       context: ./backend
       dockerfile: Dockerfile
     environment:

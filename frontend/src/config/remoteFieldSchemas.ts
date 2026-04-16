@@ -183,6 +183,37 @@ export const STANDARD_REMOTES: StandardRemoteType[] = [
     ],
   },
   {
+    value: 'azureblob',
+    label: 'Azure Blob Storage',
+    fields: [
+      {
+        key: 'account',
+        label: 'Nom du compte de stockage',
+        required: true,
+        placeholder: 'moncompte',
+        helpText: 'Nom du Storage Account Azure. Laisser vide si vous utilisez une URL SAS.',
+      },
+      {
+        key: 'key',
+        label: 'Clé du compte',
+        type: 'password',
+        helpText: 'Clé partagée du Storage Account. Laisser vide si vous utilisez une URL SAS.',
+      },
+      {
+        key: 'sas_url',
+        label: 'URL SAS',
+        placeholder: 'https://moncompte.blob.core.windows.net/conteneur?sv=...',
+        helpText: 'URL SAS au niveau du compte ou du conteneur. Alternative à la clé du compte.',
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint',
+        placeholder: 'blob.core.windows.net',
+        helpText: 'Laisser vide pour utiliser l\'endpoint Azure par défaut.',
+      },
+    ],
+  },
+  {
     value: 'local',
     label: 'Local (dossier local)',
     fields: [
@@ -201,7 +232,6 @@ export const STANDARD_REMOTES: StandardRemoteType[] = [
 // ---------------------------------------------------------------------------
 
 export const ADVANCED_REMOTE_TYPES: { value: string; label: string }[] = [
-  { value: 'azureblob', label: 'Azure Blob Storage' },
   { value: 'azurefiles', label: 'Azure Files' },
   { value: 'drive', label: 'Google Drive' },
   { value: 'onedrive', label: 'OneDrive' },

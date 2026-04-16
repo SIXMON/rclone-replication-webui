@@ -9,11 +9,11 @@ path = "src/main.rs"
 
 [dependencies]
 # Web framework
-axum = { version = "0.7", features = ["macros"] }
+axum = { version = "0.8", features = ["macros"] }
 # Tokio async runtime
 tokio = { version = "1", features = ["full"] }
 # Tower middleware
-tower-http = { version = "0.5", features = ["cors", "trace"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
 
 # Database ORM
 sea-orm = { version = "1", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros", "with-uuid", "with-chrono", "with-json"] }
@@ -30,13 +30,13 @@ uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 # Cron scheduler
-tokio-cron-scheduler = "0.10"
+tokio-cron-scheduler = "0.13"
 
 # Environment / config
 dotenvy = "0.15"
 
 # Error handling
-thiserror = "1"
+thiserror = "2"
 anyhow = "1"
 
 # Logging / tracing
@@ -44,7 +44,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Concurrent hashmap for SSE broadcaster
-dashmap = "5"
+dashmap = "6"
 
 # Async stream utilities
 tokio-stream = { version = "0.1", features = ["sync"] }

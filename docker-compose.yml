@@ -1,6 +1,7 @@
 services:
   backend:
     build:
+      image: ghcr.io/sixmon/rclone-replication-webui-backend:latest
       context: ./backend
       dockerfile: Dockerfile
     environment:
@@ -29,6 +30,7 @@ services:
       start_period: 15s
 
   frontend:
+    image: ghcr.io/sixmon/rclone-replication-webui-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

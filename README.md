@@ -71,6 +71,18 @@ Web interface for managing file replication powered by [rclone](https://rclone.o
 
 ## Running with Docker
 
+### Quick start (with PostgreSQL included)
+
+No external database needed — everything runs in Docker:
+
+```bash
+docker compose -f docker-compose.postgres.yml up --build
+```
+
+Open the interface: [http://localhost](http://localhost)
+
+### With an existing PostgreSQL
+
 1. Create a `.env` file at the project root:
 
 ```env

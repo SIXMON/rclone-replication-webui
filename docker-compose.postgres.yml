@@ -1,0 +1,72 @@
+# Docker Compose avec PostgreSQL intégré — idéal pour découvrir le projet.
+# Lancement : docker compose -f docker-compose.postgres.yml up --build
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: rclone
+      POSTGRES_PASSWORD: rclone
+      POSTGRES_DB: rclone_ui
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rclone -d rclone_ui"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    image: ghcr.io/sixmon/rclone-replication-webui-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://rclone:rclone@postgres:5432/rclone_ui"
+      BIND_ADDR: "0.0.0.0:3000"
+      RCLONE_BIN: rclone
+      APPRISE_BIN: apprise
+      RUST_LOG: "info,rclone_replication_ui=debug,sea_orm=warn,sqlx=warn"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "rclone-replication-ui", "--health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    image: ghcr.io/sixmon/rclone-replication-webui-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  pgdata:

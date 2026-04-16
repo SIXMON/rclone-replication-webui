@@ -71,6 +71,18 @@ Interface web de gestion de réplication de fichiers basée sur [rclone](https:/
 
 ## Lancement avec Docker
 
+### Démarrage rapide (PostgreSQL inclus)
+
+Aucune base de données externe nécessaire — tout tourne dans Docker :
+
+```bash
+docker compose -f docker-compose.postgres.yml up --build
+```
+
+Accédez à l'interface : [http://localhost](http://localhost)
+
+### Avec un PostgreSQL existant
+
 1. Créez un fichier `.env` à la racine :
 
 ```env

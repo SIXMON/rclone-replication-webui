@@ -5,6 +5,7 @@ import { useCreateTask } from '../hooks/useTasks';
 import { useRemotes } from '../hooks/useRemotes';
 import { useNotifications } from '../hooks/useNotifications';
 import { ErrorBanner } from '../components/ui/ErrorBanner';
+import { CronPreview } from '../components/ui/CronPreview';
 
 type FormValues = {
   name: string;
@@ -134,6 +135,7 @@ export function TaskFormPage() {
             <Info size={12} className="shrink-0 mt-0.5" />
             Expression cron (ex: <code className="bg-surface-100 px-1 rounded">0 2 * * *</code> = chaque jour à 2h). Laisser vide pour déclencher uniquement manuellement.
           </p>
+          <CronPreview expression={watch('cron_expression')} />
         </div>
 
         {/* Rclone flags */}

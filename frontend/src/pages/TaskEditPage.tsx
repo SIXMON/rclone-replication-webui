@@ -5,6 +5,7 @@ import { ArrowLeft, Info } from 'lucide-react';
 import { useTask, usePatchTask } from '../hooks/useTasks';
 import { useNotifications } from '../hooks/useNotifications';
 import { ErrorBanner } from '../components/ui/ErrorBanner';
+import { CronPreview } from '../components/ui/CronPreview';
 
 type FormValues = {
   name: string;
@@ -106,6 +107,7 @@ export function TaskEditPage() {
           <label className="block text-sm font-medium text-surface-700 mb-1">Planification automatique</label>
           <input {...register('cron_expression')} className={`${inputCls} font-mono`} placeholder="0 2 * * *" />
           <p className="text-xs text-surface-400 mt-1">Expression cron. Laisser vide = déclenchement manuel uniquement.</p>
+          <CronPreview expression={watch('cron_expression')} />
         </div>
         <div>
           <label className="block text-sm font-medium text-surface-700 mb-1">Options rclone supplémentaires</label>

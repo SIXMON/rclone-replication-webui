@@ -13,7 +13,20 @@ pub fn write_rclone_config(remotes: &[RcloneRemote]) -> Result<PathBuf> {
 
     for remote in remotes {
         content.push_str(&format!("[{}]\n", remote.name));
-        content.push_str(&format!("type = {}\n", remote.remote_type));
+
+        // SharePoint est un alias UI du backend rclone `onedrive` avec drive_type=documentLibrary
+        // et client_credentials=true (flow app-only).
+        let (effective_type, inject_sharepoint_defaults) = if remote.remote_type == "sharepoint" {
+            ("onedrive", true)
+        } else {
+            (remote.remote_type.as_str(), false)
+        };
+        content.push_str(&format!("type = {}\n", effective_type));
+        if inject_sharepoint_defaults {
+            content.push_str("drive_type = documentLibrary\n");
+            content.push_str("client_credentials = true\n");
+        }
+
         if let Some(obj) = remote.config.as_object() {
             for (k, v) in obj {
                 // `root` est géré par notre application (concaténé au chemin de la tâche),

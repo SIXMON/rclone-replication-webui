@@ -14,16 +14,23 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone, Copy)]
 pub enum ExecutionMode {
-    Normal,
+    Manual,
+    Scheduled,
     Restore,
 }
 
 impl ExecutionMode {
     pub fn label(&self) -> &'static str {
         match self {
-            ExecutionMode::Normal => "manual",
+            ExecutionMode::Manual => "manual",
+            ExecutionMode::Scheduled => "scheduler",
             ExecutionMode::Restore => "restore",
         }
+    }
+
+    /// Direction de la réplication : Normal = source→dest, Restore = dest→source.
+    pub fn is_restore(&self) -> bool {
+        matches!(self, ExecutionMode::Restore)
     }
 }
 
@@ -113,19 +120,20 @@ async fn execute_task_background(
         }
     };
 
-    let (src_remote_id, src_path, dst_remote_id, dst_path) = match mode {
-        ExecutionMode::Normal => (
-            snapshot.source_remote_id,
-            snapshot.source_path.as_str(),
-            snapshot.dest_remote_id,
-            snapshot.dest_path.as_str(),
-        ),
-        ExecutionMode::Restore => (
+    let (src_remote_id, src_path, dst_remote_id, dst_path) = if mode.is_restore() {
+        (
             snapshot.dest_remote_id,
             snapshot.dest_path.as_str(),
             snapshot.source_remote_id,
             snapshot.source_path.as_str(),
-        ),
+        )
+    } else {
+        (
+            snapshot.source_remote_id,
+            snapshot.source_path.as_str(),
+            snapshot.dest_remote_id,
+            snapshot.dest_path.as_str(),
+        )
     };
 
     let find_remote = |id: Uuid| -> Option<&RcloneRemote> {

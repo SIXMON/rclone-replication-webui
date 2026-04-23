@@ -76,7 +76,7 @@ pub async fn rebuild_scheduler(state: AppState) {
 
                 tracing::info!("scheduler: triggering task {task_id}");
                 if let Err(e) =
-                    task_executor::spawn_task(s, task_id, task_executor::ExecutionMode::Normal).await
+                    task_executor::spawn_task(s, task_id, task_executor::ExecutionMode::Scheduled).await
                 {
                     tracing::warn!("scheduler: failed to trigger task {task_id}: {e}");
                 }

@@ -214,6 +214,53 @@ export const STANDARD_REMOTES: StandardRemoteType[] = [
     ],
   },
   {
+    value: 'sharepoint',
+    label: 'SharePoint (Microsoft 365)',
+    fields: [
+      {
+        key: 'tenant',
+        label: 'Tenant ID',
+        required: true,
+        placeholder: '00000000-0000-0000-0000-000000000000',
+        helpText: 'ID du tenant Azure AD (GUID ou nom du domaine, ex: contoso.onmicrosoft.com)',
+      },
+      {
+        key: 'client_id',
+        label: 'Client ID',
+        required: true,
+        placeholder: '00000000-0000-0000-0000-000000000000',
+        helpText: 'ID de l\'application Azure (App Registration) avec les permissions Sites.ReadWrite.All',
+      },
+      {
+        key: 'client_secret',
+        label: 'Client Secret',
+        type: 'password',
+        required: true,
+        helpText: 'Secret client généré pour l\'App Registration Azure.',
+      },
+      {
+        key: 'drive_id',
+        label: 'Drive ID du site SharePoint',
+        required: true,
+        placeholder: 'b!xxxxxxxxxxxxxxxxxxxxxxxx',
+        helpText: 'ID de la bibliothèque de documents SharePoint. Récupérable via Graph Explorer : GET /sites/{site-id}/drives',
+      },
+      {
+        key: 'region',
+        label: 'Région',
+        type: 'select',
+        defaultValue: 'global',
+        options: [
+          { value: 'global', label: 'Global (par défaut)' },
+          { value: 'de', label: 'Allemagne (Microsoft Cloud Deutschland)' },
+          { value: 'us', label: 'US Government (GCC)' },
+          { value: 'cn', label: 'Chine (Azure China, operated by Vnet)' },
+        ],
+        helpText: 'Région du cloud Microsoft à utiliser.',
+      },
+    ],
+  },
+  {
     value: 'local',
     label: 'Local (dossier local)',
     fields: [

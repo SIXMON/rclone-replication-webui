@@ -172,7 +172,7 @@ pub async fn trigger(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let run_id = task_executor::spawn_task(state, id, task_executor::ExecutionMode::Normal).await?;
+    let run_id = task_executor::spawn_task(state, id, task_executor::ExecutionMode::Manual).await?;
     Ok(Json(json!({"run_id": run_id, "message": "Task started"})))
 }
 

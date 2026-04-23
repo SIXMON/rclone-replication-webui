@@ -7,6 +7,23 @@ use chrono::Utc;
 use sea_orm::*;
 use tokio_cron_scheduler::{Job, JobScheduler};
 
+/// Normalise une expression cron vers le format 6 champs attendu par tokio-cron-scheduler.
+/// Le format standard Unix à 5 champs (`min hour day month weekday`) est converti en
+/// `0 min hour day month weekday` (ajout du champ secondes à 0).
+/// Les expressions déjà en 6 champs ou les macros (`@hourly`, etc.) sont laissées telles quelles.
+fn normalize_cron(expr: &str) -> String {
+    let trimmed = expr.trim();
+    if trimmed.starts_with('@') {
+        return trimmed.to_string();
+    }
+    let field_count = trimmed.split_whitespace().count();
+    if field_count == 5 {
+        format!("0 {trimmed}")
+    } else {
+        trimmed.to_string()
+    }
+}
+
 pub async fn rebuild_scheduler(state: AppState) {
     let tasks = match task::Entity::find()
         .filter(
@@ -38,12 +55,15 @@ pub async fn rebuild_scheduler(state: AppState) {
             Some(c) => c,
             None => continue,
         };
+        // tokio-cron-scheduler attend un format cron à 6 champs (avec secondes).
+        // Les utilisateurs entrent le format standard à 5 champs → on prepend "0 " pour les secondes.
+        let normalized_cron = normalize_cron(&cron);
         let task_id = t.id;
         let notify_on = t.notify_on.clone();
         let notification_channel_id = t.notification_channel_id;
 
         let state_clone = state.clone();
-        let job = Job::new_async(cron.as_str(), move |_uuid, _lock| {
+        let job = Job::new_async(normalized_cron.as_str(), move |_uuid, _lock| {
             let s = state_clone.clone();
             let notify_on = notify_on.clone();
             Box::pin(async move {
@@ -71,7 +91,11 @@ pub async fn rebuild_scheduler(state: AppState) {
                     job_count += 1;
                 }
             }
-            Err(e) => tracing::error!("scheduler: invalid cron '{}' for task {task_id}: {e}", cron),
+            Err(e) => tracing::error!(
+                "scheduler: invalid cron '{}' (normalized: '{}') for task {task_id}: {e}",
+                cron,
+                normalized_cron
+            ),
         }
     }
 

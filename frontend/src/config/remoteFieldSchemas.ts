@@ -317,7 +317,7 @@ export function buildDefaultConfig(type: string): Record<string, string> {
 // Dynamic Zod schema builder
 // ---------------------------------------------------------------------------
 
-export function buildZodSchema(remoteType: string) {
+export function buildZodSchema(remoteType: string, isEdit = false) {
   const standard = getStandardRemote(remoteType);
 
   if (standard) {
@@ -329,14 +329,17 @@ export function buildZodSchema(remoteType: string) {
         fieldSchema = z.string().regex(/^\d*$/, 'Doit être un nombre');
       }
 
-      if (field.required) {
+      // En édition, les champs password peuvent être laissés vides pour conserver la valeur stockée
+      const effectiveRequired = field.required && !(isEdit && field.type === 'password');
+
+      if (effectiveRequired) {
         fieldSchema = z.string().min(1, 'Requis');
         if (field.type === 'number') {
           fieldSchema = z.string().regex(/^\d+$/, 'Doit être un nombre non vide');
         }
       }
 
-      configShape[field.key] = field.required ? fieldSchema : fieldSchema.optional().or(z.literal(''));
+      configShape[field.key] = effectiveRequired ? fieldSchema : fieldSchema.optional().or(z.literal(''));
     }
 
     return z.object({

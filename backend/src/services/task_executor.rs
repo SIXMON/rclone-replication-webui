@@ -418,13 +418,25 @@ async fn load_remotes(state: &AppState) -> anyhow::Result<Vec<RcloneRemote>> {
         .all(&state.db)
         .await?;
 
-    Ok(remotes
-        .into_iter()
-        .map(|r| RcloneRemote {
+    let mut result = Vec::with_capacity(remotes.len());
+    for r in remotes {
+        let mut config = r.config;
+        // Fusionner les secrets stockés dans le SecretStore (Scaleway SM ou autre)
+        if state.secret_store.is_active() {
+            if let Some(stored) = state.secret_store.get(r.id).await? {
+                if let Some(obj) = config.as_object_mut() {
+                    for (k, v) in stored {
+                        obj.insert(k, serde_json::Value::String(v));
+                    }
+                }
+            }
+        }
+        result.push(RcloneRemote {
             id: r.id,
             name: r.name,
             remote_type: r.remote_type,
-            config: r.config,
-        })
-        .collect())
+            config,
+        });
+    }
+    Ok(result)
 }

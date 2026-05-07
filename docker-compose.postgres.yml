@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: rclone
       POSTGRES_DB: rclone_ui
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
     ports:
       - "5432:5432"
     restart: unless-stopped

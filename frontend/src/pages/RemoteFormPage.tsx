@@ -47,7 +47,7 @@ export function RemoteFormPage() {
   } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: (async (values: any, context: any, options: any) => {
-      const schema = buildZodSchema(typeRef.current);
+      const schema = buildZodSchema(typeRef.current, isEdit);
       const resolve = zodResolver(schema);
       return resolve(values, context, options);
     }) as Resolver<FormValues>,
@@ -198,7 +198,7 @@ export function RemoteFormPage() {
         {/* Adaptive config section */}
         <div className="pt-1">
           {standardSchema ? (
-            <StandardRemoteFields fields={standardSchema.fields} register={register} errors={errors} />
+            <StandardRemoteFields fields={standardSchema.fields} register={register} errors={errors} isEdit={isEdit} />
           ) : (
             <GenericConfigFields control={control as never} register={register} />
           )}

@@ -42,6 +42,11 @@ async fn main() -> anyhow::Result<()> {
 
     let state = AppState::new(db, config.clone());
 
+    // Migration des secrets BDD → SecretStore (si activé)
+    if let Err(e) = services::secrets::migration::migrate_secrets_from_db(&state).await {
+        tracing::error!("Secret Manager: échec de la migration des secrets : {e}");
+    }
+
     tracing::info!("Building cron scheduler...");
     services::scheduler::rebuild_scheduler(state.clone()).await;
 

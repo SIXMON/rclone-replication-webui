@@ -1,5 +1,4 @@
 use super::SecretStore;
-use crate::config::ScalewayConfig;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
@@ -12,23 +11,26 @@ use uuid::Uuid;
 /// Convention : 1 secret par remote, nommé `<remote_id>` dans le path configuré.
 /// La valeur est un JSON object `{"<field_name>": "<value>", ...}` encodé en base64.
 pub struct ScalewaySecretStore {
-    cfg: ScalewayConfig,
+    secret_key: String,
+    project_id: String,
+    region: String,
+    path: String,
     client: reqwest::Client,
 }
 
 impl ScalewaySecretStore {
-    pub fn new(cfg: ScalewayConfig) -> Self {
+    pub fn new(secret_key: String, project_id: String, region: String, path: String) -> Self {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(15))
             .build()
             .expect("reqwest client build");
-        Self { cfg, client }
+        Self { secret_key, project_id, region, path, client }
     }
 
     fn base_url(&self) -> String {
         format!(
             "https://api.scaleway.com/secret-manager/v1beta1/regions/{}",
-            self.cfg.region
+            self.region
         )
     }
 
@@ -38,11 +40,11 @@ impl ScalewaySecretStore {
         let resp = self
             .client
             .get(&url)
-            .header("X-Auth-Token", &self.cfg.secret_key)
+            .header("X-Auth-Token", &self.secret_key)
             .query(&[
-                ("project_id", self.cfg.project_id.as_str()),
+                ("project_id", self.project_id.as_str()),
                 ("name", name),
-                ("path", self.cfg.path.as_str()),
+                ("path", self.path.as_str()),
             ])
             .send()
             .await
@@ -93,7 +95,7 @@ impl SecretStore for ScalewaySecretStore {
         let resp = self
             .client
             .get(&url)
-            .header("X-Auth-Token", &self.cfg.secret_key)
+            .header("X-Auth-Token", &self.secret_key)
             .send()
             .await
             .context("Scaleway SM access version")?;
@@ -132,11 +134,11 @@ impl SecretStore for ScalewaySecretStore {
                 let resp = self
                     .client
                     .post(&url)
-                    .header("X-Auth-Token", &self.cfg.secret_key)
+                    .header("X-Auth-Token", &self.secret_key)
                     .json(&serde_json::json!({
-                        "project_id": self.cfg.project_id,
+                        "project_id": self.project_id,
                         "name": name,
-                        "path": self.cfg.path,
+                        "path": self.path,
                         "tags": ["rclone-ui"],
                     }))
                     .send()
@@ -161,7 +163,7 @@ impl SecretStore for ScalewaySecretStore {
         let resp = self
             .client
             .post(&url)
-            .header("X-Auth-Token", &self.cfg.secret_key)
+            .header("X-Auth-Token", &self.secret_key)
             .json(&serde_json::json!({ "data": data_b64 }))
             .send()
             .await
@@ -184,7 +186,7 @@ impl SecretStore for ScalewaySecretStore {
         let resp = self
             .client
             .delete(&url)
-            .header("X-Auth-Token", &self.cfg.secret_key)
+            .header("X-Auth-Token", &self.secret_key)
             .send()
             .await
             .context("Scaleway SM delete")?;

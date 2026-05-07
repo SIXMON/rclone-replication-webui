@@ -27,8 +27,8 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(db: DatabaseConnection, config: crate::config::Config) -> Self {
-        let secret_store = secrets::build(config.scaleway.as_ref());
+    pub async fn new(db: DatabaseConnection, config: crate::config::Config) -> Self {
+        let secret_store = secrets::build(config.secret_manager.as_ref()).await;
         AppState {
             db,
             running_tasks: Arc::new(DashMap::new()),

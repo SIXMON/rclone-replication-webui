@@ -50,7 +50,14 @@ dashmap = "6"
 tokio-stream = { version = "0.1", features = ["sync"] }
 futures = "0.3"
 
-# HTTP client (Scaleway Secret Manager API)
+# HTTP client (Secret Manager APIs : Scaleway, Azure, Vault, Infisical, Doppler)
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 base64 = "0.22"
 async-trait = "0.1"
+
+# AWS Secrets Manager
+aws-config = { version = "1", features = ["behavior-version-latest"] }
+aws-sdk-secretsmanager = { version = "1" }
+
+# Google Cloud Secret Manager (auth via service account)
+gcp_auth = "0.12"

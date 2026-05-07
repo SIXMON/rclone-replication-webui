@@ -40,7 +40,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Running migrations...");
     Migrator::up(&db, None).await?;
 
-    let state = AppState::new(db, config.clone());
+    let state = AppState::new(db, config.clone()).await;
 
     // Migration des secrets BDD → SecretStore (si activé)
     if let Err(e) = services::secrets::migration::migrate_secrets_from_db(&state).await {

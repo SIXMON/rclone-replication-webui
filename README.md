@@ -23,7 +23,7 @@ Web interface for managing file replication powered by [rclone](https://rclone.o
 - **History** — Last 100 runs per task with rclone statistics (transfers, volume, checks, deletes, errors), expandable inline logs
 - **Notifications** — Markdown-formatted alerts via [apprise-go](https://github.com/unraid/apprise-go) (Slack, Mattermost, email, webhooks) on error, success, or skipped tasks
 - **Overlap protection** — A running task cannot be started again; cron triggers during a running task are logged as "skipped"
-- **Secret Manager** — Optional [Scaleway Secret Manager](https://www.scaleway.com/en/secret-manager/) integration to store sensitive credentials outside the database
+- **Secret Manager** — Optional integration with multiple providers to store sensitive credentials outside the database: Scaleway, AWS, Azure Key Vault, Google Cloud, HashiCorp Vault, Infisical, Doppler
 
 ## Tech stack
 
@@ -36,7 +36,7 @@ Web interface for managing file replication powered by [rclone](https://rclone.o
 | Scheduling | tokio-cron-scheduler |
 | Replication | rclone |
 | Notifications | [apprise-go](https://github.com/unraid/apprise-go) |
-| Secret storage (optional) | Scaleway Secret Manager |
+| Secret storage (optional) | Scaleway / AWS / Azure / GCP / Vault / Infisical / Doppler |
 
 ## Architecture
 
@@ -52,9 +52,12 @@ Web interface for managing file replication powered by [rclone](https://rclone.o
 │  Rust (Axum) + rclone + apprise-go  │
 └─────────────────────────────────────┘
          ↕ SQL              ↕ HTTPS (optional)
-┌──────────────────┐    ┌────────────────────────┐
-│  PostgreSQL      │    │  Scaleway Secret Mgr   │
-└──────────────────┘    └────────────────────────┘
+┌──────────────────┐    ┌────────────────────────────┐
+│  PostgreSQL      │    │  Secret Manager (pluggable)│
+│                  │    │  Scaleway / AWS / Azure /  │
+│                  │    │  GCP / Vault / Infisical / │
+│                  │    │  Doppler                   │
+└──────────────────┘    └────────────────────────────┘
 ```
 
 ## Prerequisites
@@ -134,23 +137,92 @@ The Vite dev server starts on `http://localhost:5173` and proxies `/api/*` to th
 | `APPRISE_BIN` | Path to apprise binary | `apprise` |
 | `RUST_LOG` | Log levels | `info,rclone_replication_ui=debug,sea_orm=warn,sqlx=warn` |
 
-### Scaleway Secret Manager (optional)
+### Secret Manager (optional)
 
-When enabled, sensitive credentials (passwords, API secrets, keys) are stored in [Scaleway Secret Manager](https://www.scaleway.com/en/secret-manager/) instead of the database. Existing credentials are migrated automatically on startup.
+When enabled, sensitive credentials (passwords, API secrets, keys) are stored in an external Secret Manager instead of the database. Existing credentials are migrated automatically on startup.
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SCW_SECRET_MANAGER_ENABLED` | Set to `true` to enable | `false` |
-| `SCW_SECRET_KEY` | IAM secret key | — |
-| `SCW_PROJECT_ID` | Scaleway project UUID | — |
-| `SCW_DEFAULT_REGION` | Region | `fr-par` |
-| `SCW_SECRET_PATH` | Path prefix for secrets | `/rclone-ui` |
+The provider is selected via `SECRET_MANAGER_PROVIDER`. Supported values:
 
-**Setup steps on the Scaleway console:**
+| Provider | Value | Auth |
+|----------|-------|------|
+| Scaleway Secret Manager | `scaleway` | API key |
+| AWS Secrets Manager | `aws` | Standard AWS credentials chain |
+| Azure Key Vault | `azure` | Service Principal |
+| Google Cloud Secret Manager | `gcp` | Application Default Credentials |
+| HashiCorp Vault | `vault` | Token (KV v2) |
+| Infisical | `infisical` | Universal Auth |
+| Doppler | `doppler` | Service Token |
 
-1. Activate **Secret Manager** in your project (region `fr-par` recommended)
-2. Create an **IAM API key** with the permission set `SecretManagerFullAccess`
-3. Copy the secret key and project ID into your `.env` or `docker-compose.yml`
+Set `SECRET_MANAGER_PROVIDER=none` (default) to keep credentials in the database.
+
+#### Scaleway
+
+| Variable | Default |
+|----------|---------|
+| `SCW_SECRET_KEY` | — |
+| `SCW_PROJECT_ID` | — |
+| `SCW_DEFAULT_REGION` | `fr-par` |
+| `SCW_SECRET_PATH` | `/rclone-ui` |
+
+#### AWS
+
+Uses the standard [AWS credentials provider chain](https://docs.aws.amazon.com/sdk-for-rust/latest/dg/credentials.html) (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`, IAM roles on EC2/ECS/EKS, IRSA, etc.).
+
+| Variable | Default |
+|----------|---------|
+| `AWS_REGION` | `eu-west-1` |
+| `AWS_SECRET_PREFIX` | `rclone-ui/` |
+
+#### Azure Key Vault
+
+Requires a Service Principal with `Get`, `Set`, `Delete` permissions on the vault.
+
+| Variable | Default |
+|----------|---------|
+| `AZURE_TENANT_ID` | — |
+| `AZURE_CLIENT_ID` | — |
+| `AZURE_CLIENT_SECRET` | — |
+| `AZURE_VAULT_URL` (e.g. `https://myvault.vault.azure.net`) | — |
+
+#### Google Cloud Secret Manager
+
+Uses [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Set `GOOGLE_APPLICATION_CREDENTIALS` to a service account JSON file, or rely on the GCE/GKE metadata server.
+
+| Variable | Default |
+|----------|---------|
+| `GCP_PROJECT_ID` | — |
+
+#### HashiCorp Vault
+
+Uses the KV v2 secrets engine.
+
+| Variable | Default |
+|----------|---------|
+| `VAULT_ADDR` (e.g. `http://vault.local:8200`) | — |
+| `VAULT_TOKEN` | — |
+| `VAULT_MOUNT_PATH` | `secret` |
+| `VAULT_PATH_PREFIX` | `rclone-ui` |
+
+#### Infisical
+
+Uses [Universal Auth](https://infisical.com/docs/documentation/platform/identities/universal-auth) (machine identity).
+
+| Variable | Default |
+|----------|---------|
+| `INFISICAL_HOST` | `https://app.infisical.com` |
+| `INFISICAL_CLIENT_ID` | — |
+| `INFISICAL_CLIENT_SECRET` | — |
+| `INFISICAL_PROJECT_ID` | — |
+| `INFISICAL_ENVIRONMENT` | `prod` |
+| `INFISICAL_SECRET_PATH` | `/rclone-ui` |
+
+#### Doppler
+
+| Variable | Default |
+|----------|---------|
+| `DOPPLER_TOKEN` (Service Token) | — |
+| `DOPPLER_PROJECT` | — |
+| `DOPPLER_CONFIG` | `prd` |
 
 ## Project structure
 

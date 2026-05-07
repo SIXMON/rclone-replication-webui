@@ -141,7 +141,6 @@ Quand activé, les credentials sensibles (mots de passe, secrets API, clés) son
 | Variable | Description | Défaut |
 |----------|-------------|--------|
 | `SCW_SECRET_MANAGER_ENABLED` | Mettre à `true` pour activer | `false` |
-| `SCW_ACCESS_KEY` | Access key IAM | — |
 | `SCW_SECRET_KEY` | Secret key IAM | — |
 | `SCW_PROJECT_ID` | UUID du projet Scaleway | — |
 | `SCW_DEFAULT_REGION` | Région | `fr-par` |
@@ -151,7 +150,7 @@ Quand activé, les credentials sensibles (mots de passe, secrets API, clés) son
 
 1. Activer **Secret Manager** dans votre projet (région `fr-par` recommandée)
 2. Créer une **clé API IAM** avec le permission set `SecretManagerFullAccess`
-3. Copier l'access key, la secret key et l'ID du projet dans votre `.env` ou `docker-compose.yml`
+3. Copier la secret key et l'ID du projet dans votre `.env` ou `docker-compose.yml`
 
 ## Structure du projet
 

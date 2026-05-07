@@ -141,7 +141,6 @@ When enabled, sensitive credentials (passwords, API secrets, keys) are stored in
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SCW_SECRET_MANAGER_ENABLED` | Set to `true` to enable | `false` |
-| `SCW_ACCESS_KEY` | IAM access key | — |
 | `SCW_SECRET_KEY` | IAM secret key | — |
 | `SCW_PROJECT_ID` | Scaleway project UUID | — |
 | `SCW_DEFAULT_REGION` | Region | `fr-par` |
@@ -151,7 +150,7 @@ When enabled, sensitive credentials (passwords, API secrets, keys) are stored in
 
 1. Activate **Secret Manager** in your project (region `fr-par` recommended)
 2. Create an **IAM API key** with the permission set `SecretManagerFullAccess`
-3. Copy the access key, secret key, and project ID into your `.env` or `docker-compose.yml`
+3. Copy the secret key and project ID into your `.env` or `docker-compose.yml`
 
 ## Project structure
 

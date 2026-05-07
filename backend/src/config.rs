@@ -2,7 +2,6 @@ use std::env;
 
 #[derive(Clone, Debug)]
 pub struct ScalewayConfig {
-    pub access_key: String,
     pub secret_key: String,
     pub project_id: String,
     pub region: String,
@@ -29,8 +28,6 @@ impl Config {
             .unwrap_or(false)
         {
             Some(ScalewayConfig {
-                access_key: env::var("SCW_ACCESS_KEY")
-                    .map_err(|_| anyhow::anyhow!("SCW_ACCESS_KEY is required when SCW_SECRET_MANAGER_ENABLED=true"))?,
                 secret_key: env::var("SCW_SECRET_KEY")
                     .map_err(|_| anyhow::anyhow!("SCW_SECRET_KEY is required when SCW_SECRET_MANAGER_ENABLED=true"))?,
                 project_id: env::var("SCW_PROJECT_ID")
